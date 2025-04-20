@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tax Assistant</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💬 Tax Chat Assistant</h1>
+
+        <div id="login-area" class="card" style="{{ 'display:none;' if logged_in else '' }}">
+            <input type="text" id="username" placeholder="Enter username">
+            <button onclick="login()">Login</button>
+        </div>
+
+        <div id="chat-area" class="card" style="{{ '' if logged_in else 'display:none;' }}">
+            <p class="welcome">👋 Welcome, <strong>{{ username }}</strong></p>
+            <textarea id="message" placeholder="Describe your income, expenses, etc."></textarea>
+            <button onclick="sendMessage()">Send</button>
+            <div id="response"></div>
+            <div class="links">
+                <a href="/download_pdf">Download PDF</a>
+            </div>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            fetch('/login', {
+                method: 'POST',
+                body: new URLSearchParams({ username })
+            }).then(res => res.json()).then(data => location.reload());
+        }
+
+        function logout() {
+            fetch('/logout').then(() => location.reload());
+        }
+
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            fetch('/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('response').innerText = data.response;
+                document.getElementById('message').value = "";
+            });
+        }
+    </script>
+</body>
+</html>
